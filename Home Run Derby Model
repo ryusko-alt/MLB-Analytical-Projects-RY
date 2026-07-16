@@ -1,0 +1,37 @@
+import pandas as pd
+import numpy as np
+
+# 1. Load your Baseball Savant data
+# Ensure 'hrd_data.csv' is uploaded to the 'Files' tab in your Colab notebook
+df = pd.read_csv('stats 3.csv')
+
+# 2. Filter for specific participants
+# Define the list of players you want to analyze for the 2026 Home Run Derby
+target_players = ['Schwarber, Kyle', 'Harper, Bryce', 'Walker, Jordan', 'Contreras, Willson', 'Caglianone, Jac', 'Rice, Ben', 'Caminero, Junior', 'Murakami, Munetaka']
+df_filtered = df[df['last_name, first_name'].isin(target_players)].copy()
+
+# 3. Define the power scoring function
+def calculate_power_score(data):
+    # Normalize metrics using Z-score standardization (value - mean) / std
+    # This ensures exit velocity and bat speed are comparable to age
+    data['ev_norm'] = (data['exit_velocity_avg'] - data['exit_velocity_avg'].mean()) / data['exit_velocity_avg'].std()
+    data['bs_norm'] = (data['avg_swing_speed'] - data['avg_swing_speed'].mean()) / data['avg_swing_speed'].std()
+    data['barrels_norm'] = (data['barrel'] - data['barrel'].mean()) / data['barrel'].std()
+    data['launch_angle_avg]'] = (data['launch_angle_avg'] - data['launch_angle_avg'].mean()) / data['launch_angle_avg'].std()
+  
+    # Calculate weighted composite score based on Derby-specific domain expertise
+    # Weights prioritize Exit Velocity and Bat Speed over Age
+    data['power_score'] = (0.3 * data['ev_norm']) + (0.2 * data['bs_norm']) + (0.5 * data['barrel']) + (0.4 * data['launch_angle_avg'])   
+    return data
+
+# 4. Apply the model to your filtered dataset
+df_scored = calculate_power_score(df_filtered)
+
+# 5. Output the results
+# Sort by highest power_score and display the final leaderboard
+final_leaderboard = df_scored.sort_values(by='power_score', ascending=False)
+print("2026 Home Run Derby Predictive Leaderboard")
+print(final_leaderboard[['last_name, first_name', 'power_score']])
+
+# Optional: Export your results to a new CSV for viewing in Excel
+# final_leaderboard.to_csv('hrd_predictions.csv', index=False)

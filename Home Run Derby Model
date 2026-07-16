@@ -8,17 +8,15 @@ df = pd.read_csv('stats 3.csv')
 target_players = ['Schwarber, Kyle', 'Harper, Bryce', 'Walker, Jordan', 'Contreras, Willson', 'Caglianone, Jac', 'Rice, Ben', 'Caminero, Junior', 'Murakami, Munetaka']
 df_filtered = df[df['last_name, first_name'].isin(target_players)].copy()
 
-# 3. Defined power scoring function
+# Defined power scoring function
 def calculate_power_score(data):
     # Normalize metrics using Z-score standardization (value - mean) / std
-    # This ensures exit velocity and bat speed are comparable to age
     data['ev_norm'] = (data['exit_velocity_avg'] - data['exit_velocity_avg'].mean()) / data['exit_velocity_avg'].std()
     data['bs_norm'] = (data['avg_swing_speed'] - data['avg_swing_speed'].mean()) / data['avg_swing_speed'].std()
     data['barrels_norm'] = (data['barrel'] - data['barrel'].mean()) / data['barrel'].std()
     data['launch_angle_avg]'] = (data['launch_angle_avg'] - data['launch_angle_avg'].mean()) / data['launch_angle_avg'].std()
   
     # Calculate weighted composite score based on Derby-specific domain expertise
-    # Weights prioritize Exit Velocity and Bat Speed over Age
     data['power_score'] = (0.3 * data['ev_norm']) + (0.2 * data['bs_norm']) + (0.5 * data['barrel']) + (0.4 * data['launch_angle_avg'])   
     return data
 
